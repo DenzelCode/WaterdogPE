@@ -16,72 +16,114 @@
 package dev.waterdog.utils;
 
 import dev.waterdog.logger.MainLogger;
+import lombok.AllArgsConstructor;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
 public abstract class Configuration {
 
+    @AllArgsConstructor
+    private static class LastMap {
+        public final String key;
+        public final Map<String, Object> map;
+    }
+
     protected File file;
     protected Map<String, Object> values = new LinkedHashMap<>();
 
-    public Configuration() {
-        this((File) null);
-    }
-
-    public Configuration(String file) {
-        this(new File(file));
+    public Configuration(String saveFile) {
+        this(new File(saveFile));
     }
 
     public Configuration(Path path) {
         this(path.toFile());
     }
 
-    public Configuration(File file) {
-        this.file = file;
+    public Configuration(File saveFile) {
+        this(saveFile, null);
+    }
 
-        if (this.file != null && !this.file.exists()) {
-            try {
-                File parentFile = this.file.getParentFile();
+    public Configuration(File saveFile, InputStream inputStream) {
+        this.file = saveFile;
 
-                if (parentFile != null) {
-                    parentFile.mkdirs();
-                }
-
-                FileWriter myWriter = new FileWriter(file);
-                myWriter.write(getDefaultFileContent());
-                myWriter.close();
-            } catch (IOException e) {
-                MainLogger.getLogger().error("Unable to create Config " + this.file.toString(), e);
+        try {
+            if (!this.file.exists()) {
+                this.save();
             }
+
+            if (inputStream == null) {
+                inputStream = Files.newInputStream(this.file.toPath());
+            }
+
+            this.load(inputStream);
+        } catch (IOException e) {
+            MainLogger.getLogger().error("Unable to initialize Config " + this.file.toString(), e);
         }
-
-        this.load();
     }
 
-    public void load() {
-        load(null);
+    protected abstract Map<String, Object> unserialize(InputStream inputStream);
+
+    protected abstract String serialize(Map<String, Object> values);
+
+    public void load(InputStream inputStream) {
+        try {
+            this.values = unserialize(inputStream);
+        } catch (Exception e) {
+            MainLogger.getLogger().error("Unable to load Config " + this.file.toString());
+        }
     }
 
-    public abstract void load(InputStream inputStream);
+    public void save() {
+        save(serialize(this.values));
+    }
 
-    public abstract void save();
+    protected void save(String content) {
+        try {
+            File parentFile = this.file.getParentFile();
+
+            if (parentFile != null) {
+                parentFile.mkdirs();
+            }
+
+            FileWriter myWriter = new FileWriter(this.file);
+            myWriter.write(content);
+            myWriter.close();
+        } catch (IOException e) {
+            MainLogger.getLogger().error("Unable to save Config " + this.file.toString(), e);
+        }
+    }
 
     public void loadFrom(Map<String, Object> values) {
         this.values = values;
     }
 
     public Set<String> getKeys() {
-        return new HashSet<>(this.values.keySet());
+        return this.values.keySet();
+    }
+
+    public void remove(String key) {
+        LastMap lastMap = this.getLastMap(key);
+
+        if (lastMap == null) return;
+
+        lastMap.map.remove(lastMap.key);
+    }
+
+    public void set(String key, Object value) {
+        LastMap lastMap = this.getLastMap(key);
+
+        if (lastMap == null) return;
+
+        lastMap.map.put(lastMap.key, value);
     }
 
     @SuppressWarnings("unchecked")
-    public void set(String key, Object value) {
-        if (key == null || key.isEmpty()) return;
+    private LastMap getLastMap(String key) {
+        if (key == null || key.isEmpty()) return null;
 
         Map<String, Object> values = this.values;
         String[] keys = key.split("\\.");
@@ -101,7 +143,7 @@ public abstract class Configuration {
             values = (Map<String, Object>) values.get(currentKey);
         }
 
-        values.put(currentKey, value);
+        return new LastMap(currentKey, values);
     }
 
     public Object get(String key) {
@@ -137,14 +179,13 @@ public abstract class Configuration {
     }
 
     public boolean exists(String key) {
-        return get(key) != null;
+        return this.get(key) != null;
     }
 
     public Map<String, Object> getAll() {
-        return values;
+        return this.values;
     }
 
-    public abstract String getDefaultFileContent();
 
     public void setString(String key, String value) {
         this.set(key, value);
@@ -195,7 +236,6 @@ public abstract class Configuration {
 
     public Double getDouble(String key, Double defaultValue) {
         return Double.valueOf(String.valueOf(this.get(key, defaultValue)));
-
     }
 
 
@@ -204,7 +244,7 @@ public abstract class Configuration {
     }
 
     public Boolean getBoolean(String key) {
-        return getBoolean(key, null);
+        return this.getBoolean(key, null);
     }
 
     public Boolean getBoolean(String key, Boolean defaultValue) {
@@ -231,7 +271,7 @@ public abstract class Configuration {
     }
 
     public List<String> getStringList(String key) {
-        return getStringList(key, null);
+        return this.getStringList(key, null);
     }
 
     @SuppressWarnings("unchecked")

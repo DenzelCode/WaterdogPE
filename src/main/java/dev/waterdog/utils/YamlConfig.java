@@ -15,14 +15,10 @@
 
 package dev.waterdog.utils;
 
-import com.google.common.base.Charsets;
-import dev.waterdog.logger.MainLogger;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
@@ -30,11 +26,7 @@ public class YamlConfig extends Configuration {
 
     private final static Yaml yaml = new Yaml();
 
-    public YamlConfig() {
-        super();
-    }
-
-    public YamlConfig(File file) {
+    public YamlConfig(String file) {
         super(file);
     }
 
@@ -42,40 +34,22 @@ public class YamlConfig extends Configuration {
         super(path);
     }
 
-    public YamlConfig(String file) {
-        super(file);
+    public YamlConfig(File saveFile) {
+        super(saveFile);
+    }
+
+    public YamlConfig(File saveFile, InputStream inputStream) {
+        super(saveFile, inputStream);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public void load(InputStream inputStream) {
-        if (this.file == null && inputStream == null) return;
-
-        try {
-            this.values = yaml.loadAs(
-                    inputStream == null ? Files.newInputStream(this.file.toPath()) : inputStream,
-                    Map.class
-            );
-        } catch (Exception e) {
-            MainLogger.getLogger().error("Unable to load Config " + this.file.toString());
-        }
+    protected Map<String, Object> unserialize(InputStream inputStream) {
+        return yaml.loadAs(inputStream, Map.class);
     }
 
     @Override
-    public void save() {
-        if (this.file == null) return;
-
-        String writingData = yaml.dump(this.values);
-
-        try {
-            Files.write(this.file.toPath(), writingData.getBytes(Charsets.UTF_8));
-        } catch (IOException e) {
-            MainLogger.getLogger().error("Unable to save Config " + this.file.toString());
-        }
-    }
-
-    @Override
-    public String getDefaultFileContent() {
-        return "[]";
+    protected String serialize(Map<String, Object> values) {
+        return yaml.dump(values);
     }
 }
