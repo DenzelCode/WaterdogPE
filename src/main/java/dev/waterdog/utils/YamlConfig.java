@@ -30,6 +30,10 @@ public class YamlConfig extends Configuration {
 
     private final static Yaml yaml = new Yaml();
 
+    public YamlConfig() {
+        super();
+    }
+
     public YamlConfig(File file) {
         super(file);
     }

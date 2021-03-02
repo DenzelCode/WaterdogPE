@@ -15,6 +15,10 @@ public class JsonConfig extends Configuration {
 
     protected Gson json = new Gson();
 
+    public JsonConfig() {
+        super();
+    }
+
     public JsonConfig(File file) {
         super(file);
     }
@@ -34,6 +38,8 @@ public class JsonConfig extends Configuration {
 
     @SuppressWarnings("unchecked")
     public void load(InputStream inputStream) {
+        if (this.file == null && inputStream == null) return;
+
         try {
             Reader reader;
 
@@ -51,6 +57,8 @@ public class JsonConfig extends Configuration {
 
     @Override
     public void save() {
+        if (this.file == null) return;
+
         String json = new GsonBuilder().create().toJson(this.values);
 
         try {
