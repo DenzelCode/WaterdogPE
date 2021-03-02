@@ -51,7 +51,9 @@ public class JsonConfig extends Configuration {
 
             this.values = json.fromJson(reader, Map.class);
         } catch (Exception e) {
-            MainLogger.getLogger().error("Unable to load Config " + this.file.toString());
+            MainLogger
+                    .getLogger()
+                    .error("Unable to load Config " + this.file.toString());
         }
     }
 
@@ -64,7 +66,9 @@ public class JsonConfig extends Configuration {
         try {
             Files.write(this.file.toPath(), json.getBytes(Charsets.UTF_8));
         } catch (IOException e) {
-            MainLogger.getLogger().error("Unable to save Config " + this.file.toString());
+            MainLogger
+                    .getLogger()
+                    .error("Unable to save Config " + this.file.toString());
         }
     }
 
