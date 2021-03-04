@@ -43,6 +43,7 @@ import dev.waterdog.utils.types.TranslationContainer;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.*;
+import lombok.Getter;
 
 import java.net.InetSocketAddress;
 import java.util.*;
@@ -66,7 +67,7 @@ public class ProxiedPlayer implements CommandSender {
     private final LongSet bossbars = new LongOpenHashSet();
     private final Collection<UUID> players = new HashSet<>();
     private final ObjectSet<String> scoreboards = new ObjectOpenHashSet<>();
-    private final Map<String, Permission> permissions = new HashMap<>();
+    @Getter private final Map<String, Permission> permissions = new HashMap<>();
     private ServerConnection serverConnection;
     private PendingConnection pendingConnection;
     private boolean admin = false;

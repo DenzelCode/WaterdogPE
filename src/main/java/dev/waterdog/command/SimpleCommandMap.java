@@ -95,7 +95,7 @@ public class SimpleCommandMap implements CommandMap {
     private void execute(Command command, CommandSender sender, String alias, String[] args) {
         String permission = command.getPermission();
 
-        if (permission != null && !permission.isEmpty() && !sender.hasPermission(permission)) {
+        if (permission != null && !permission.isEmpty() && !sender.hasPermission(permission) && !sender.hasPermission("*")) {
             sender.sendMessage(command.getPermissionMessage());
             return;
         }
