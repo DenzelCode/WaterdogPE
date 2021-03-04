@@ -64,7 +64,9 @@ public class ConnectedDownstreamHandler extends AbstractDownstreamHandler {
         }
 
         for (Command cmd : this.player.getProxy().getCommandMap().getCommands().values()) {
-            if (cmd.getPermission() != null || (this.player.hasPermission(cmd.getPermission()))) {
+            String permission = cmd.getPermission();
+
+            if (permission == null || permission.isEmpty() || this.player.hasPermission(permission) || this.player.hasPermission("*")) {
                 packet.getCommands().add(cmd.getData());
             }
         }

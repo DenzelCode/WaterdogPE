@@ -52,7 +52,7 @@ public class HelpCommand extends Command {
         CommandMap commandMap = sender.getProxy().getCommandMap();
         Map<String, Command> commands = new TreeMap<>();
         for (Command command : commandMap.getCommands().values()) {
-            if (sender.hasPermission(command.getPermission())) {
+            if (command.getPermission() == null || command.getPermission().isEmpty() || sender.hasPermission(command.getPermission()) || sender.hasPermission("*")) {
                 commands.put(command.getName(), command);
             }
         }

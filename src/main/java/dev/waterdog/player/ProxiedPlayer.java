@@ -45,10 +45,7 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.*;
 
 import java.net.InetSocketAddress;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -69,7 +66,7 @@ public class ProxiedPlayer implements CommandSender {
     private final LongSet bossbars = new LongOpenHashSet();
     private final Collection<UUID> players = new HashSet<>();
     private final ObjectSet<String> scoreboards = new ObjectOpenHashSet<>();
-    private final Object2ObjectMap<String, Permission> permissions = new Object2ObjectOpenHashMap<>();
+    private final Map<String, Permission> permissions = new HashMap<>();
     private ServerConnection serverConnection;
     private PendingConnection pendingConnection;
     private boolean admin = false;
@@ -544,7 +541,7 @@ public class ProxiedPlayer implements CommandSender {
      */
     @Override
     public boolean hasPermission(String permission) {
-        if (this.admin || permission.isEmpty() || permission.equals("*")) {
+        if (this.admin) {
             return true;
         }
         Permission perm = this.permissions.get(permission.toLowerCase());
