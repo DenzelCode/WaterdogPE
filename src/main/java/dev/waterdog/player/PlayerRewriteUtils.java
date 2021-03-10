@@ -22,6 +22,7 @@ import com.nukkitx.protocol.bedrock.data.GameRuleData;
 import com.nukkitx.protocol.bedrock.data.GameType;
 import com.nukkitx.protocol.bedrock.data.LevelEventType;
 import com.nukkitx.protocol.bedrock.data.entity.EntityData;
+import com.nukkitx.protocol.bedrock.data.entity.EntityLinkData;
 import com.nukkitx.protocol.bedrock.packet.*;
 
 import java.util.ArrayList;
@@ -34,6 +35,11 @@ import java.util.UUID;
  * For example removing client-sided weather, effects, effect particles etc..
  */
 public class PlayerRewriteUtils {
+
+    public static final RequestChunkRadiusPacket defaultChunkRadius = new RequestChunkRadiusPacket();
+    static {
+        defaultChunkRadius.setRadius(8);
+    }
 
     public static long rewriteId(long from, long rewritten, long origin) {
         return from == origin ? rewritten : (from == rewritten ? origin : from);
@@ -90,6 +96,15 @@ public class PlayerRewriteUtils {
         }
         SetDifficultyPacket packet = new SetDifficultyPacket();
         packet.setDifficulty(difficulty);
+        session.sendPacket(packet);
+    }
+
+    public static void injectRemoveEntityLink(BedrockSession session, long vehicleId, long riderId) {
+        if (session == null || session.isClosed()){
+            return;
+        }
+        SetEntityLinkPacket packet = new SetEntityLinkPacket();
+        packet.setEntityLink(new EntityLinkData(vehicleId, riderId, EntityLinkData.Type.REMOVE, false, false));
         session.sendPacket(packet);
     }
 

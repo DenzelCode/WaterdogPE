@@ -60,6 +60,11 @@ public class ProtocolConstants {
      * Here we register customized, performance improved codecs for supported game versions.
      */
     public static void registerCodecs(){
+        registerCodec(ProtocolVersion.MINECRAFT_PE_1_8, new BedrockCodec313());
+        registerCodec(ProtocolVersion.MINECRAFT_PE_1_9, new BedrockCodec332());
+        registerCodec(ProtocolVersion.MINECRAFT_PE_1_10, new BedrockCodec340());
+        registerCodec(ProtocolVersion.MINECRAFT_PE_1_11, new BedrockCodec354());
+        registerCodec(ProtocolVersion.MINECRAFT_PE_1_12, new BedrockCodec361());
         registerCodec(ProtocolVersion.MINECRAFT_PE_1_13, new BedrockCodec388());
         registerCodec(ProtocolVersion.MINECRAFT_PE_1_14_30, new BedrockCodec389());
         registerCodec(ProtocolVersion.MINECRAFT_PE_1_14_60, new BedrockCodec390());
@@ -67,6 +72,7 @@ public class ProtocolConstants {
         registerCodec(ProtocolVersion.MINECRAFT_PE_1_16_20, new BedrockCodec408());
         registerCodec(ProtocolVersion.MINECRAFT_PE_1_16_100, new BedrockCodec419());
         registerCodec(ProtocolVersion.MINECRAFT_PE_1_16_200, new BedrockCodec422());
+        registerCodec(ProtocolVersion.MINECRAFT_PE_1_16_210, new BedrockCodec428());
     }
 
     /**

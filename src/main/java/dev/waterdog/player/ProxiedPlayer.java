@@ -40,8 +40,7 @@ import dev.waterdog.utils.types.PacketHandler;
 import dev.waterdog.utils.types.Permission;
 import dev.waterdog.utils.types.TextContainer;
 import dev.waterdog.utils.types.TranslationContainer;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.longs.*;
 import it.unimi.dsi.fastutil.objects.*;
 import lombok.Getter;
 
@@ -65,9 +64,10 @@ public class ProxiedPlayer implements CommandSender {
     private final RewriteMaps rewriteMaps;
     private final LongSet entities = new LongOpenHashSet();
     private final LongSet bossbars = new LongOpenHashSet();
-    private final Collection<UUID> players = new HashSet<>();
+    private final ObjectSet<UUID> players = new ObjectOpenHashSet<>();
     private final ObjectSet<String> scoreboards = new ObjectOpenHashSet<>();
-    @Getter private final Map<String, Permission> permissions = new HashMap<>();
+    private final Long2LongMap entityLinks = new Long2LongOpenHashMap();
+    @Getter private final Object2ObjectMap<String, Permission> permissions = new Object2ObjectOpenHashMap<>();
     private ServerConnection serverConnection;
     private PendingConnection pendingConnection;
     private boolean admin = false;
@@ -327,7 +327,7 @@ public class ProxiedPlayer implements CommandSender {
     }
 
     public void onDownstreamTimeout() {
-        ServerInfo serverInfo = this.serverConnection.getInfo();
+        ServerInfo serverInfo = this.getServerInfo();
         if (!this.sendToFallback(serverInfo, "Downstream Timeout")) {
             this.disconnect(new TranslationContainer("waterdog.downstream.down", serverInfo.getServerName(), "Timeout"));
         }
@@ -542,9 +542,10 @@ public class ProxiedPlayer implements CommandSender {
      */
     @Override
     public boolean hasPermission(String permission) {
-        if (this.admin) {
+        if (this.admin || permission.isEmpty()) {
             return true;
         }
+
         Permission perm = this.permissions.get(permission.toLowerCase());
         return perm != null && perm.getValue();
     }
@@ -695,6 +696,10 @@ public class ProxiedPlayer implements CommandSender {
 
     public ObjectSet<String> getScoreboards() {
         return this.scoreboards;
+    }
+
+    public Long2LongMap getEntityLinks() {
+        return this.entityLinks;
     }
 
     public PacketHandler getPluginUpstreamHandler() {
