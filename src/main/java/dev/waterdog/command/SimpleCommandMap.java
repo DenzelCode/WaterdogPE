@@ -16,6 +16,7 @@
 package dev.waterdog.command;
 
 import dev.waterdog.ProxyServer;
+import dev.waterdog.utils.types.TextContainer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import dev.waterdog.utils.types.TranslationContainer;
@@ -86,7 +87,7 @@ public class SimpleCommandMap implements CommandMap {
             return true;
         }
 
-        if (!sender.isPlayer()) { //Player commands may be handled by servers
+        if (!sender.isPlayer()) { // Player commands may be handled by servers
             sender.sendMessage(new TranslationContainer("waterdog.command.unknown"));
         }
         return false;
@@ -96,7 +97,7 @@ public class SimpleCommandMap implements CommandMap {
         String permission = command.getPermission();
 
         if (permission != null && !permission.isEmpty() && !sender.hasPermission(permission) && !sender.hasPermission("*")) {
-            sender.sendMessage(command.getPermissionMessage());
+            sender.sendMessage(new TextContainer(command.getPermissionMessage(), command.getName(), command.getPermission()));
             return;
         }
 

@@ -130,15 +130,7 @@ public class HandshakeUtils {
         ECPublicKey identityPublicKey = EncryptionUtils.generateKey(identityPublicKeyString);
         JWSObject clientJwt = JWSObject.parse(packet.getSkinData().toString());
         EncryptionUtils.verifyJwt(clientJwt, identityPublicKey);
-
         JsonObject clientData = HandshakeUtils.parseClientData(clientJwt, extraData, session);
-
-        JsonElement xuid = extraData.get("XUID");
-
-        if (xuid != null) {
-            clientData.addProperty("Waterdog_XUID", xuid.getAsString());
-        }
-
         return new HandshakeEntry(identityPublicKey, clientData, extraData, xboxAuth, protocol);
     }
 
@@ -147,7 +139,11 @@ public class HandshakeUtils {
         ProxyConfig config = ProxyServer.getInstance().getConfiguration();
         if (config.useLoginExtras()) {
             // Add waterdog attributes
-            clientData.addProperty("Waterdog_XUID", extraData.get("XUID").getAsString());
+            JsonElement xuid = extraData.get("XUID");
+            if (xuid != null) {
+                clientData.addProperty("Waterdog_XUID", xuid.getAsString());
+            }
+
             clientData.addProperty("Waterdog_IP", session.getAddress().getAddress().getHostAddress());
         }
         return clientData;
